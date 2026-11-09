@@ -1,0 +1,9 @@
+{
+  "name": "한국어 작문/문법 교정기",
+  "short_name": "교정기",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#4f46e5",
+  "icons": []
+}

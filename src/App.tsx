@@ -22,6 +22,8 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [updatesText, setUpdatesText] = useState('');
   const [exportFormat, setExportFormat] = useState<'txt' | 'md' | 'html'>('txt');
+  const [newWrong, setNewWrong] = useState('');
+  const [newCorrect, setNewCorrect] = useState('');
   const { errors } = useAnalysis(text, settings);
 
   const setText = (next: string) => {
@@ -88,6 +90,18 @@ export default function App() {
 
   const clear = () => setText('');
   const resetBaseline = () => setBaseline(text);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod) return;
+      if (e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+      else if (e.key === 'z' && e.shiftKey) { e.preventDefault(); redo(); }
+      else if (e.key === 's') { e.preventDefault(); exportText(); }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [history, hIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const ignoreRule = (id?: string) => {
     if (!id) return;
@@ -195,7 +209,59 @@ export default function App() {
               ))}
             </div>
             <div className="setting-row">
-              <span>오류 카드에서 "제외" 가능</span>
+              <span>사용자 사전 추가</span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={newWrong} onChange={(e) => setNewWrong(e.target.value)} placeholder="틀린 표현" />
+                <input value={newCorrect} onChange={(e) => setNewCorrect(e.target.value)} placeholder="올바른 표현" />
+                <button
+                  className="btn btn-small"
+                  onClick={() => {
+                    if (!newWrong || !newCorrect) return;
+                    updateSettings({
+                      userDictionary: [...settings.userDictionary, { wrong: newWrong, correct: newCorrect, category: '맞춤법' }],
+                    });
+                    setNewWrong('');
+                    setNewCorrect('');
+                  }}
+                >
+                  추가
+                </button>
+              </div>
+            </div>
+            <div className="setting-row">
+              <span>설정 내보내기/가져오기</span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  className="btn btn-small"
+                  onClick={() => {
+                    const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'kwc-settings.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                >
+                  내보내기
+                </button>
+                <input
+                  type="file"
+                  accept="application/json"
+                  onChange={async (e) => {
+                    const f = e.target.files?.[0];
+                    if (!f) return;
+                    const txt = await f.text();
+                    try {
+                      const parsed = JSON.parse(txt);
+                      updateSettings(parsed);
+                    } catch {}
+                  }}
+                />
+              </div>
+            </div>
+            <div className="setting-row">
+              <span>규칙 버전: 2026-11-05</span>
             </div>
             <button className="btn" onClick={() => setShowSettings(false)}>닫기</button>
           </div>

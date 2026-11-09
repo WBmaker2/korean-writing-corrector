@@ -33,4 +33,5 @@ export const rules: Rule[] = [
   { id: 'space-17', pattern: '안녕\\s+하세요', replacement: '안녕하세요', reason: '\'안녕하세요\'는 붙여 씁니다.', category: '띄어쓰기', priority: 80 },
   { id: 'space-18', pattern: '([가-힣])(?<!야|여|고|지|서|면|니|라)\\s+(입니다|습니다|합니다)', replacement: '$1$2', reason: '어미는 앞말에 붙여 씁니다.', category: '띄어쓰기', priority: 70 },
   { id: 'space-19', pattern: '([가-힣])(?<!야|여|고|지|서|면|니|라)\\s+(이다)(?![가-힣])', replacement: '$1$2', reason: '서술격 조사 \'이다\'는 앞말에 붙여 씁니다.', category: '띄어쓰기', priority: 70 },
+  { id: 'grammar-3', pattern: '할 대', replacement: '할 데', reason: "'할 데'가 맞습니다 (장소/시점).", category: '문법', priority: 65, confidence: 0.75 },
 ];
