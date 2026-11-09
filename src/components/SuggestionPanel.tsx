@@ -27,7 +27,15 @@ export function SuggestionPanel({
         </button>
       </div>
       <div className="panel-list">
-        {errors.length === 0 && <p className="muted">발견된 오류가 없습니다.</p>}
+        {errors.length === 0 && (
+          <div className="empty-state">
+            <div className="empty-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <strong>발견된 오류가 없습니다</strong>
+            <span className="muted">글이 깔끔해요. 계속 작성하세요.</span>
+          </div>
+        )}
         {errors.map((e) => (
           <div key={e.id} className="suggestion-card">
             <div className="suggestion-top">

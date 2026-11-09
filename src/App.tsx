@@ -1,3 +1,4 @@
+import './App.css';
 import { useEffect, useState } from 'react';
 import { Editor } from './components/Editor';
 import { SuggestionPanel } from './components/SuggestionPanel';
@@ -109,27 +110,57 @@ export default function App() {
     updateSettings({ ignoredRuleIds: [...settings.ignoredRuleIds, id] });
   };
 
+  const chars = text.length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+
   return (
     <div className="app">
       <header className="topbar">
-        <h1>한국어 작문/문법 교정기</h1>
+        <div className="brand">
+          <h1>한국어 작문 교정기</h1>
+          <span className="subtitle">로컬 분석 · 데이터 전송 없음</span>
+        </div>
         <div className="topbar-actions">
-          <button className="btn" onClick={undo} disabled={hIndex === 0}>되돌리기</button>
-          <button className="btn" onClick={redo} disabled={hIndex === history.length - 1}>다시 실행</button>
-          <select value={exportFormat} onChange={(e) => setExportFormat(e.target.value as any)} className="btn">
-            <option value="txt">TXT</option>
-            <option value="md">MD</option>
-            <option value="html">HTML</option>
-          </select>
-          <button className="btn" onClick={exportText}>내보내기</button>
-          <button className="btn" onClick={clear}>초기화</button>
-          <button className="btn" onClick={() => setShowSettings(true)}>설정</button>
-          <button className="btn" onClick={() => setShowUpdates(true)}>업데이트 내역</button>
+          <div className="toolbar-group">
+            <button className="icon-btn" onClick={undo} disabled={hIndex === 0} aria-label="되돌리기" title="되돌리기 (Ctrl+Z)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+            </button>
+            <button className="icon-btn" onClick={redo} disabled={hIndex === history.length - 1} aria-label="다시 실행" title="다시 실행 (Ctrl+Shift+Z)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+            </button>
+          </div>
+          <div className="toolbar-group">
+            <select value={exportFormat} onChange={(e) => setExportFormat(e.target.value as any)} className="select" aria-label="내보내기 형식">
+              <option value="txt">TXT</option>
+              <option value="md">MD</option>
+              <option value="html">HTML</option>
+            </select>
+            <button className="btn btn-small" onClick={exportText}>내보내기</button>
+          </div>
+          <div className="toolbar-group">
+            <button className="btn btn-small btn-ghost" onClick={clear}>초기화</button>
+            <button className="btn btn-small btn-ghost" onClick={() => setShowSettings(true)}>설정</button>
+            <button className="btn btn-small btn-ghost" onClick={() => setShowUpdates(true)}>업데이트</button>
+          </div>
         </div>
       </header>
       <main className="main">
         <section className="editor-section">
-          <Editor value={text} onChange={setText} errors={errors} />
+          <div className="editor-wrap">
+            <Editor value={text} onChange={setText} errors={errors} />
+            <div className="editor-footer">
+              <div className="legend">
+                <span className="legend-item"><span className="legend-dot" style={{ background: 'var(--accent)' }} />맞춤법</span>
+                <span className="legend-item"><span className="legend-dot" style={{ background: 'var(--warn)' }} />띄어쓰기</span>
+                <span className="legend-item"><span className="legend-dot" style={{ background: 'var(--info)' }} />문법</span>
+                <span className="legend-item"><span className="legend-dot" style={{ background: 'var(--ok)' }} />표현</span>
+              </div>
+              <div className="counts">
+                <span>오류 {errors.length}건</span>
+                <span>{chars}자 · {words}단어</span>
+              </div>
+            </div>
+          </div>
         </section>
         <aside className="side">
           <div className="tabs">
@@ -143,8 +174,10 @@ export default function App() {
           {tab === 'learn' && <Learning errors={errors} />}
           {tab === 'diff' && (
             <div className="panel">
-              <h3>비교 (원본 vs 현재)</h3>
-              <button className="btn btn-small" onClick={resetBaseline}>현재를 기준으로 설정</button>
+              <div className="panel-header">
+                <h3>비교</h3>
+                <button className="btn btn-small" onClick={resetBaseline}>현재를 기준으로</button>
+              </div>
               <div className="diff-grid">
                 <div>
                   <div className="diff-title">원본</div>
@@ -164,8 +197,10 @@ export default function App() {
         <div className="modal-backdrop" onClick={() => setShowUpdates(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>업데이트 내역</h2>
-            <pre className="updates-pre">{updatesText}</pre>
-            <button className="btn" onClick={() => setShowUpdates(false)}>닫기</button>
+            <pre className="updates-pre">{updatesText || '내역이 없습니다.'}</pre>
+            <div className="modal-footer">
+              <button className="btn" onClick={() => setShowUpdates(false)}>닫기</button>
+            </div>
           </div>
         </div>
       )}
@@ -174,47 +209,52 @@ export default function App() {
         <div className="modal-backdrop" onClick={() => setShowSettings(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>설정</h2>
-            <label className="setting-row">
-              디바운스(ms)
+            <div className="setting-row">
+              <span>디바운스 (ms)</span>
               <input
                 type="number"
                 value={settings.debounceMs}
                 onChange={(e) => updateSettings({ debounceMs: Number(e.target.value) || 300 })}
               />
-            </label>
-            <label className="setting-row">
-              최소 신뢰도
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.05}
-                value={settings.minConfidence}
-                onChange={(e) => updateSettings({ minConfidence: Number(e.target.value) })}
-              />
-              <span>{settings.minConfidence.toFixed(2)}</span>
-            </label>
+            </div>
             <div className="setting-row">
-              <span>제외된 규칙: {settings.ignoredRuleIds.length}개</span>
-              {settings.ignoredRuleIds.map((id) => (
-                <button
-                  key={id}
-                  className="btn btn-small"
-                  onClick={() =>
-                    updateSettings({ ignoredRuleIds: settings.ignoredRuleIds.filter((x) => x !== id) })
-                  }
-                >
-                  {id} 해제
-                </button>
-              ))}
+              <span>최소 신뢰도</span>
+              <div className="row-inline">
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={settings.minConfidence}
+                  onChange={(e) => updateSettings({ minConfidence: Number(e.target.value) })}
+                />
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{settings.minConfidence.toFixed(2)}</span>
+              </div>
+            </div>
+            <div className="setting-row">
+              <span>제외된 규칙 ({settings.ignoredRuleIds.length})</span>
+              <div className="row-inline">
+                {settings.ignoredRuleIds.length === 0 && <span className="muted">없음</span>}
+                {settings.ignoredRuleIds.map((id) => (
+                  <button
+                    key={id}
+                    className="btn btn-small"
+                    onClick={() =>
+                      updateSettings({ ignoredRuleIds: settings.ignoredRuleIds.filter((x) => x !== id) })
+                    }
+                  >
+                    {id} 해제
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="setting-row">
               <span>사용자 사전 추가</span>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div className="row-inline">
                 <input value={newWrong} onChange={(e) => setNewWrong(e.target.value)} placeholder="틀린 표현" />
                 <input value={newCorrect} onChange={(e) => setNewCorrect(e.target.value)} placeholder="올바른 표현" />
                 <button
-                  className="btn btn-small"
+                  className="btn btn-small btn-primary"
                   onClick={() => {
                     if (!newWrong || !newCorrect) return;
                     updateSettings({
@@ -229,8 +269,8 @@ export default function App() {
               </div>
             </div>
             <div className="setting-row">
-              <span>설정 내보내기/가져오기</span>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <span>설정 내보내기 / 가져오기</span>
+              <div className="row-inline">
                 <button
                   className="btn btn-small"
                   onClick={() => {
@@ -261,9 +301,11 @@ export default function App() {
               </div>
             </div>
             <div className="setting-row">
-              <span>규칙 버전: 2026-11-05</span>
+              <span className="muted">규칙 버전: 2026-11-05</span>
             </div>
-            <button className="btn" onClick={() => setShowSettings(false)}>닫기</button>
+            <div className="modal-footer">
+              <button className="btn" onClick={() => setShowSettings(false)}>닫기</button>
+            </div>
           </div>
         </div>
       )}

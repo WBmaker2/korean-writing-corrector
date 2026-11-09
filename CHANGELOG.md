@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0] - 2026-11-09
+
+### Changed
+- Full UI/UX redesign for usability: paper-toned theme, grouped toolbar, legend, char/word counts, empty states, themed browser surfaces, responsive layout.
+
 ## [0.1.0] - 2026-11-05
 
 ### Added
