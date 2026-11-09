@@ -46,7 +46,7 @@ export default function App() {
   }, [text]);
 
   useEffect(() => {
-    fetch('/updates.md')
+    fetch(`${import.meta.env.BASE_URL}updates.md`)
       .then((r) => r.text())
       .then(setUpdatesText)
       .catch(() => setUpdatesText(''));

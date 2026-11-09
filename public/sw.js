@@ -1,4 +1,4 @@
-const CACHE = 'kwc-v1';
+const CACHE = 'kwc-v2';
 const ASSETS = ['./', './index.html', './manifest.webmanifest'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
