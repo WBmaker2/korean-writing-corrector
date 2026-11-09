@@ -25,3 +25,6 @@ dist-ssr
 
 .impeccable/
 .playwright-mcp/
+
+.playwright-mcp/
+deployed.yml
